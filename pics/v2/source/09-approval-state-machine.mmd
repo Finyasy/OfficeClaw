@@ -1,0 +1,14 @@
+stateDiagram-v2
+  [*] --> pending
+
+  pending --> approved: decision=approve
+  pending --> cancelled: decision=cancel
+  pending --> expired: ttl_reached
+
+  approved --> executed: side_effect_success
+  approved --> failed: side_effect_error
+
+  cancelled --> [*]
+  expired --> [*]
+  executed --> [*]
+  failed --> [*]

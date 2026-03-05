@@ -1,0 +1,42 @@
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant T as TS Teams Adapter
+  participant R as Rust Agent Core
+  participant P as Policy Engine
+  participant G as Microsoft Graph
+  participant A as Audit Log
+
+  U->>T: "Schedule 30 mins with James next week"
+  T->>R: SendActivity(ActivityEnvelope: text)
+  R->>R: Resolve attendee identity
+  alt attendee ambiguous
+    R-->>T: AgentResponse(request attendee email confirmation)
+    T-->>U: "Which James? Provide email"
+  else attendee resolved
+    R->>P: Evaluate(schedule_meeting_proposal)
+    P-->>R: allow(policy_code=SCHEDULE_READ_ALLOWED)
+    R->>G: GET /me/calendarView?startDateTime=...&endDateTime=...
+    G-->>R: existing meetings
+    R->>R: Compute 3 candidate slots + business-hour checks
+    R->>A: write AuditEvent(action=slot_proposal, result=success)
+    R-->>T: AgentResponse(slot-picker card)
+    T-->>U: Show 3 slots
+
+    U->>T: Click slot action SelectSlot
+    T->>R: SendActivity(ActivityEnvelope: action_type=SelectSlot, slot_start_utc, slot_end_utc)
+    R->>P: Evaluate(create_event_invite)
+    P-->>R: require_approval(policy_code=INVITE_APPROVAL_REQUIRED)
+    R-->>T: AgentResponse(confirm booking prompt)
+    T-->>U: "Confirm invite?"
+
+    U->>T: Click ApproveInvite
+    T->>R: SendActivity(ActivityEnvelope: action_type=ApproveInvite)
+    R->>P: Evaluate(final_invite_send)
+    P-->>R: allow(policy_code=INVITE_ALLOWED)
+    R->>G: POST /me/events
+    G-->>R: event_id + join_info
+    R->>A: write AuditEvent(action=create_event, result=success)
+    R-->>T: AgentResponse("Booked. Invite sent.")
+    T-->>U: Confirmation
+  end

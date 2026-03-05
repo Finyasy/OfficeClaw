@@ -1,0 +1,26 @@
+sequenceDiagram
+  autonumber
+  participant U as User (Teams)
+  participant T as TS Teams Adapter
+  participant R as Rust Agent Core
+  participant P as Policy Engine
+  participant G as Microsoft Graph
+  participant A as Audit Log
+
+  U->>T: "Summarize unread emails from today"
+  T->>R: SendActivity(ActivityEnvelope: request_id, correlation_id, text)
+  R->>P: Evaluate(read_mail_summary)
+  P-->>R: allow(policy_code=READ_ALLOWED)
+  R->>G: GET /me/mailFolders/inbox/messages?$filter=isRead eq false
+  alt Graph success
+    G-->>R: email headers + ids
+    R->>R: LLM summarize (no side effects)
+    R->>A: write AuditEvent(action=mail_read_summary, result=success)
+    R-->>T: AgentResponse(summary + actions)
+    T-->>U: Summary card + buttons
+  else Graph transient failure
+    G-->>R: 429/503
+    R->>A: write AuditEvent(action=mail_read_summary, result=retryable_error)
+    R-->>T: AgentResponse(fallback message, retry suggestion)
+    T-->>U: "Could not fetch now, please retry"
+  end

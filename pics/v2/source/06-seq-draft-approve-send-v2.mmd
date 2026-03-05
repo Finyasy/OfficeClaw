@@ -1,0 +1,47 @@
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant T as TS Teams Adapter
+  participant R as Rust Agent Core
+  participant P as Policy Engine
+  participant G as Microsoft Graph
+  participant A as Audit Log
+
+  U->>T: "Reply to this email proposing Thu 10am"
+  T->>R: SendActivity(ActivityEnvelope: email_id, text)
+  R->>P: Evaluate(draft_reply)
+  P-->>R: allow(policy_code=DRAFT_ALLOWED)
+  R->>G: GET /me/messages/{email_id}
+  G-->>R: message + thread context
+  R->>R: Draft reply with LLM
+  R->>A: write AuditEvent(action=draft_reply, result=success)
+  R-->>T: AgentResponse(draft preview + Send/Edit/Cancel)
+  T-->>U: Draft preview card
+
+  U->>T: Click Send
+  T->>R: SendActivity(ActivityEnvelope: action_type=ApproveSend, draft_id)
+  R->>P: Evaluate(send_mail)
+  alt recipient external or new
+    P-->>R: require_approval(policy_code=EXTERNAL_EXTRA_CONFIRM)
+    R-->>T: AgentResponse(extra confirmation prompt)
+    T-->>U: "External recipient detected. Confirm again"
+    U->>T: Click ConfirmExternalSend
+    T->>R: SendActivity(ActivityEnvelope: action_type=ConfirmExternalSend, draft_id)
+    R->>P: Evaluate(final_send_mail)
+    P-->>R: allow(policy_code=SEND_ALLOWED)
+  else recipient safe
+    P-->>R: allow(policy_code=SEND_ALLOWED)
+  end
+
+  R->>G: POST /me/sendMail
+  alt send success
+    G-->>R: 202 Accepted
+    R->>A: write AuditEvent(action=send_mail, result=success)
+    R-->>T: AgentResponse("Sent")
+    T-->>U: Confirmation
+  else send failure
+    G-->>R: 4xx/5xx
+    R->>A: write AuditEvent(action=send_mail, result=failure)
+    R-->>T: AgentResponse(send failed, draft retained)
+    T-->>U: Failure message + retry option
+  end

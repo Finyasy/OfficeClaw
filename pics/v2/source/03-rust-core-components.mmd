@@ -1,0 +1,22 @@
+flowchart LR
+  API["gRPC API Layer"] --> ORCH["Orchestrator"]
+  ORCH --> INTENT["Intent Router"]
+  ORCH --> POL["Policy Evaluator"]
+  ORCH --> APPR["Approval Manager"]
+  ORCH --> SKREG["Skill Registry"]
+  ORCH --> AUD["Audit Writer"]
+  ORCH --> SESS["Session Repository"]
+
+  SKREG --> MAIL["Outlook Mail Skill"]
+  SKREG --> CAL["Outlook Calendar Skill"]
+
+  POL --> RULES["Rule Set"]
+  APPR --> STATE["Approval State Machine"]
+
+  MAIL --> GRAPH["Graph Client"]
+  CAL --> GRAPH
+
+  SESS --> DB[("Postgres")]
+  AUD --> DB
+
+  ORCH --> TRACE["Telemetry + Tracing"]

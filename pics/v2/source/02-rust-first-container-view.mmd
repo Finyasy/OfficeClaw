@@ -1,0 +1,36 @@
+flowchart TB
+  subgraph Z0["Public Ingress Zone"]
+    TEAMS["Teams/Bot Connector"]
+    ADP["TS Adapter Service"]
+  end
+
+  subgraph Z1["Trusted App Zone"]
+    CORE["Rust Core Service"]
+    POL["Policy/Approvals"]
+    AUD["Audit Pipeline"]
+    SES["Session Store Access"]
+  end
+
+  subgraph Z2["Data Zone"]
+    DB[("Postgres HA")]
+    KMS["Key Vault"]
+  end
+
+  subgraph Z3["External APIs"]
+    MG["Microsoft Graph"]
+    LLM["Azure OpenAI"]
+  end
+
+  TEAMS --> ADP
+  ADP -->|"mTLS gRPC"| CORE
+  CORE --> POL
+  CORE --> AUD
+  CORE --> SES
+  SES --> DB
+  AUD --> DB
+  CORE --> KMS
+  CORE --> MG
+  CORE --> LLM
+
+  classDef zone fill:#f4f4f4,stroke:#555,stroke-width:1px;
+  class Z0,Z1,Z2,Z3 zone;

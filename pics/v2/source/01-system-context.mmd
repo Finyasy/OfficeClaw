@@ -1,0 +1,47 @@
+flowchart LR
+  U["User (Teams)"] --> T
+
+  subgraph CH["Channel Surface"]
+    T["Microsoft Teams + Bot Framework"]
+  end
+
+  subgraph EDGE["TypeScript Edge (teams-adapter)"]
+    BF["Activity Parser"]
+    CARD["Adaptive Card Renderer"]
+    OAUTH["OAuth UX"]
+    GCLI["gRPC Client"]
+    T --> BF --> GCLI
+    GCLI --> CARD
+    OAUTH --> GCLI
+  end
+
+  subgraph CORE["Rust Core (agent-core)"]
+    GSRV["gRPC Server"]
+    ORCH["Agent Orchestrator"]
+    POL["Policy + Approval Engine"]
+    SK["Skills: Mail + Calendar"]
+    AUD["Audit Writer"]
+    SES["Session Manager"]
+    GSRV --> ORCH
+    ORCH --> POL
+    ORCH --> SK
+    ORCH --> AUD
+    ORCH --> SES
+  end
+
+  GCLI --> GSRV
+
+  subgraph EXT["External Services"]
+    GRAPH["Microsoft Graph"]
+    AOAI["Azure OpenAI"]
+    PG[("Postgres")]
+    KV["Azure Key Vault"]
+  end
+
+  SK --> GRAPH
+  ORCH --> AOAI
+  SES --> PG
+  AUD --> PG
+  CORE --> KV
+
+  CARD --> U

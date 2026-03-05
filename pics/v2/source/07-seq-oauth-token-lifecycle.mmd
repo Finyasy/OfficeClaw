@@ -1,0 +1,25 @@
+sequenceDiagram
+  autonumber
+  participant U as User
+  participant T as TS Teams Adapter
+  participant I as Entra ID
+  participant R as Rust Agent Core
+  participant K as Key Vault
+  participant G as Microsoft Graph
+  participant A as Audit Log
+
+  U->>T: Trigger command requiring Graph access
+  T-->>U: Show sign-in card
+  U->>I: Authenticate + consent
+  I-->>T: Auth code / token callback
+  T->>R: OAuthCallback(AuthEnvelope: user_id, tenant_id, auth_context)
+  R->>K: Store encrypted refresh token reference
+  R->>A: write AuditEvent(action=oauth_callback, result=success)
+  R-->>T: Ack
+
+  T->>R: SendActivity(user command)
+  R->>K: Retrieve token reference
+  R->>I: Refresh access token when needed
+  I-->>R: Access token
+  R->>G: Graph request with delegated token
+  G-->>R: Response

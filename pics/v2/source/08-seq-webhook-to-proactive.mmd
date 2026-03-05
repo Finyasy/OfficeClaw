@@ -1,0 +1,28 @@
+sequenceDiagram
+  autonumber
+  participant G as Microsoft Graph
+  participant T as TS Teams Adapter
+  participant R as Rust Agent Core
+  participant P as Policy Engine
+  participant A as Audit Log
+  participant U as User (Teams)
+
+  G->>T: Subscription validation request (validationToken)
+  T-->>G: Echo validationToken plaintext
+
+  G->>T: Change notification payload
+  T->>R: SendActivity(ActivityEnvelope: action_type=WebhookNotification)
+  R->>P: Evaluate(webhook_triggered_summary)
+  P-->>R: allow(policy_code=WEBHOOK_ALLOWED)
+  R->>A: write AuditEvent(action=webhook_received, result=success)
+  R->>T: ProactiveNotify(NotifyEnvelope: summary message)
+  T-->>U: Proactive Teams message
+
+  alt subscription near expiry
+    R->>G: Renew subscription
+    G-->>R: renewal success
+    R->>A: write AuditEvent(action=subscription_renewal, result=success)
+  else renewal failure
+    G-->>R: renewal error
+    R->>A: write AuditEvent(action=subscription_renewal, result=failure)
+  end

@@ -1,0 +1,50 @@
+flowchart TB
+  subgraph AZ["Azure Region (Single Region HA)"]
+    subgraph IN["Ingress"]
+      GW["Ingress / App Gateway"]
+    end
+
+    subgraph APP["Application Zone"]
+      TS1["TS Adapter Instance A"]
+      TS2["TS Adapter Instance B"]
+      R1["Rust Core Instance A"]
+      R2["Rust Core Instance B"]
+    end
+
+    subgraph DATA["Data and Secrets"]
+      PG[("Azure Database for PostgreSQL HA")]
+      KV["Azure Key Vault"]
+    end
+
+    subgraph OBS["Observability"]
+      MON["Azure Monitor / Log Analytics"]
+      ALR["Alerts + On-call"]
+    end
+  end
+
+  subgraph EXT["External"]
+    TEAMS["Teams / Bot Connector"]
+    GRAPH["Microsoft Graph"]
+    AOAI["Azure OpenAI"]
+  end
+
+  TEAMS --> GW
+  GW --> TS1
+  GW --> TS2
+  TS1 --> R1
+  TS1 --> R2
+  TS2 --> R1
+  TS2 --> R2
+  R1 --> PG
+  R2 --> PG
+  R1 --> KV
+  R2 --> KV
+  R1 --> GRAPH
+  R2 --> GRAPH
+  R1 --> AOAI
+  R2 --> AOAI
+  TS1 --> MON
+  TS2 --> MON
+  R1 --> MON
+  R2 --> MON
+  MON --> ALR
