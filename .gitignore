@@ -1,0 +1,13 @@
+# Node
+node_modules/
+apps/teams-adapter/dist/
+
+# Rust
+apps/agent-core/target/
+
+# Local env files
+.env
+.env.*
+
+# macOS
+.DS_Store
