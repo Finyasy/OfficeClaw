@@ -1,0 +1,26 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Draft reply preview"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Send",
+      "data": {
+        "action": "APPROVE_SEND"
+      }
+    },
+    {
+      "type": "Action.Submit",
+      "title": "Cancel",
+      "data": {
+        "action": "CANCEL"
+      }
+    }
+  ]
+}

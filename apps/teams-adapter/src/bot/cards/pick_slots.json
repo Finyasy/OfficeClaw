@@ -1,0 +1,19 @@
+{
+  "type": "AdaptiveCard",
+  "version": "1.5",
+  "body": [
+    {
+      "type": "TextBlock",
+      "text": "Pick a proposed slot"
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Submit",
+      "title": "Choose slot",
+      "data": {
+        "action": "SELECT_SLOT"
+      }
+    }
+  ]
+}
