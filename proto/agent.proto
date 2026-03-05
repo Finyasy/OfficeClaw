@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package teamsagent.v1;
+
+message Actor {
+  string tenant_id = 1;
+  string user_id = 2;
+  string user_display_name = 3;
+}
+
+message Conversation {
+  string channel = 1;
+  string conversation_id = 2;
+  string thread_id = 3;
+  string message_id = 4;
+}
+
+message AttachmentRef {
+  string kind = 1;
+  string id = 2;
+  string data_json = 3;
+}
+
+message ActivityEnvelope {
+  Actor actor = 1;
+  Conversation conversation = 2;
+  string text = 3;
+  repeated AttachmentRef attachments = 4;
+  string action = 5;
+  string action_payload_json = 6;
+  repeated string recipients = 7;
+  bool contains_sensitive = 8;
+  uint32 request_hour_local = 9;
+  bool attendee_known = 10;
+}
+
+message UiAction {
+  string id = 1;
+  string label = 2;
+  string payload_json = 3;
+  string style = 4;
+}
+
+message AgentResponse {
+  string text = 1;
+  string adaptive_card_json = 2;
+  repeated UiAction actions = 3;
+  string correlation_id = 4;
+}
+
+message ProactiveMessage {
+  Actor actor = 1;
+  Conversation conversation = 2;
+  string text = 3;
+  string adaptive_card_json = 4;
+  string correlation_id = 5;
+}
+
+message Ack {
+  bool ok = 1;
+  string message = 2;
+}
+
+service AgentGateway {
+  rpc HandleActivity(ActivityEnvelope) returns (AgentResponse);
+  rpc SendProactive(ProactiveMessage) returns (Ack);
+}
