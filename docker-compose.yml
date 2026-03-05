@@ -1,0 +1,32 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: teamsagent
+      POSTGRES_USER: teamsagent
+      POSTGRES_PASSWORD: teamsagent
+    ports:
+      - "5432:5432"
+
+  agent-core:
+    build: ./apps/agent-core
+    environment:
+      DATABASE_URL: postgres://teamsagent:teamsagent@postgres:5432/teamsagent
+      GRPC_PORT: 50051
+      RUST_LOG: info
+    depends_on:
+      - postgres
+    ports:
+      - "50051:50051"
+
+  teams-adapter:
+    build: ./apps/teams-adapter
+    environment:
+      PORT: 3978
+      AGENT_GRPC_ENDPOINT: agent-core:50051
+      BOT_APP_ID: dev-bot-id
+      BOT_APP_PASSWORD: dev-bot-password
+    depends_on:
+      - agent-core
+    ports:
+      - "3978:3978"
