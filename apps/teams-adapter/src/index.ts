@@ -45,7 +45,6 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(config.port, () => {
-  // eslint-disable-next-line no-console
   console.log(`teams-adapter listening on ${config.port}`);
 });
 

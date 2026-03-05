@@ -52,4 +52,4 @@ Rust-first, production-grade agent platform for Microsoft Teams that automates O
 ## Run tests
 
 - Rust: `cd apps/agent-core && cargo test`
-- TypeScript: `cd apps/teams-adapter && npm install && npm test`
+- TypeScript: `cd apps/teams-adapter && pnpm install --frozen-lockfile && pnpm test`

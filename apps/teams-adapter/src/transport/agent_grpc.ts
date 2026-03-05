@@ -86,7 +86,7 @@ export class GrpcAgentGatewayTransport implements AgentGatewayClient {
 
   constructor(endpoint: string) {
     const ClientCtor = loadClientCtor();
-    this.client = new ClientCtor(endpoint, grpc.credentials.createInsecure()) as GrpcAgentGatewayClient;
+    this.client = new ClientCtor(endpoint, grpc.credentials.createInsecure()) as unknown as GrpcAgentGatewayClient;
   }
 
   handleActivity(activity: ActivityEnvelope): Promise<AgentResponse> {

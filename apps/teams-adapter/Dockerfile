@@ -1,7 +1,8 @@
 FROM node:22-bookworm-slim
 WORKDIR /app
-COPY package.json tsconfig.json ./
-RUN npm install
+RUN corepack enable
+COPY package.json pnpm-lock.yaml tsconfig.json ./
+RUN pnpm install --frozen-lockfile
 COPY src ./src
 EXPOSE 3978
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "run", "dev"]

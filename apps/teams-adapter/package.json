@@ -2,9 +2,11 @@
   "name": "teams-adapter",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@9.15.2",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "lint": "eslint .",
     "test": "vitest run",
     "dev": "node --loader ts-node/esm src/index.ts"
   },
@@ -13,7 +15,12 @@
     "@grpc/proto-loader": "^0.7.15"
   },
   "devDependencies": {
+    "@eslint/js": "^9.23.0",
     "@types/node": "^22.10.2",
+    "@typescript-eslint/eslint-plugin": "^8.27.0",
+    "@typescript-eslint/parser": "^8.27.0",
+    "eslint": "^9.23.0",
+    "globals": "^16.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
