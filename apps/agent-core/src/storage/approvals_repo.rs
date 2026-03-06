@@ -127,7 +127,7 @@ impl ApprovalsRepo for PostgresApprovalsRepo {
                 policy_snapshot_json,
                 expires_at
             )
-            values ($1, $2, $3, $4, $5, $6, $7::approval_status, $8, $9, $10, $11)
+            values ($1, $2, $3, $4, $5, $6, $7::approval_status, $8, $9, $10, $11::timestamptz)
             "#,
         )
         .bind(record.approval_id)
