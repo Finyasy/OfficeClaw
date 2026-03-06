@@ -16,6 +16,7 @@
 - Rust integration coverage includes Postgres-backed repo tests with mocked Graph and mocked Key Vault endpoints.
 - Token persistence tests must exercise envelope encryption and decryption through the Key Vault client path, not only the plaintext fallback.
 - Approval execution tests must prove that persisted approval payloads are used as the execution source of truth.
+- CI runs the Rust persistence integration test against a Postgres service container on every pull request.
 
 ## Release gates (Phase 1)
 
