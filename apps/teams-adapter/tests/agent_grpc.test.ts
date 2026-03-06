@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fromGrpcResponse, toGrpcAuthRequest, toGrpcRequest } from "../src/transport/agent_grpc.js";
+import { fromGrpcResponse, parseEndpoint, toGrpcAuthRequest, toGrpcRequest } from "../src/transport/agent_grpc.js";
 import type { ActivityEnvelope, AuthEnvelope } from "../src/types.js";
 
 function sampleActivity(): ActivityEnvelope {
@@ -106,5 +106,27 @@ describe("toGrpcAuthRequest", () => {
       refreshToken: "refresh",
       scope: "Mail.Read Calendars.Read",
     });
+  });
+});
+
+describe("parseEndpoint", () => {
+  it("uses insecure transport for bare hostnames", () => {
+    const parsed = parseEndpoint("agent-core:50051");
+
+    expect(parsed.address).toBe("agent-core:50051");
+  });
+
+  it("normalizes grpc and http schemes to insecure transport", () => {
+    expect(parseEndpoint("grpc://agent-core:50051").address).toBe("agent-core:50051");
+    expect(parseEndpoint("http://agent-core.internal:50051").address).toBe("agent-core.internal:50051");
+  });
+
+  it("normalizes grpcs and https schemes for managed ingress", () => {
+    expect(parseEndpoint("grpcs://agent-core.internal:443").address).toBe("agent-core.internal:443");
+    expect(parseEndpoint("https://agent-core.internal:443").address).toBe("agent-core.internal:443");
+  });
+
+  it("rejects empty endpoints", () => {
+    expect(() => parseEndpoint("   ")).toThrow("AGENT_GRPC_ENDPOINT must not be empty");
   });
 });

@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import type { ActivityEnvelope, AgentResponse, AuthEnvelope } from "../types.js";
 
 const protoPathCandidate = [
+  fileURLToPath(new URL("../../../proto/agent.proto", import.meta.url)),
   fileURLToPath(new URL("../../../../proto/agent.proto", import.meta.url)),
   fileURLToPath(new URL("../../../../../proto/agent.proto", import.meta.url)),
 ].find((candidate) => existsSync(candidate));
@@ -36,6 +37,11 @@ interface LoadedProto {
       AgentGateway: grpc.ServiceClientConstructor;
     };
   };
+}
+
+interface ParsedEndpoint {
+  address: string;
+  credentials: grpc.ChannelCredentials;
 }
 
 function shouldRetry(error: grpc.ServiceError): boolean {
@@ -76,6 +82,46 @@ function loadClientCtor(): grpc.ServiceClientConstructor {
 
   const loaded = grpc.loadPackageDefinition(packageDefinition) as unknown as LoadedProto;
   return loaded.teamsagent.v1.AgentGateway;
+}
+
+function parseEndpoint(endpoint: string): ParsedEndpoint {
+  const trimmed = endpoint.trim();
+  if (trimmed.length === 0) {
+    throw new Error("AGENT_GRPC_ENDPOINT must not be empty");
+  }
+
+  if (trimmed.startsWith("grpcs://")) {
+    return {
+      address: trimmed.slice("grpcs://".length),
+      credentials: grpc.credentials.createSsl(),
+    };
+  }
+
+  if (trimmed.startsWith("https://")) {
+    return {
+      address: trimmed.slice("https://".length),
+      credentials: grpc.credentials.createSsl(),
+    };
+  }
+
+  if (trimmed.startsWith("grpc://")) {
+    return {
+      address: trimmed.slice("grpc://".length),
+      credentials: grpc.credentials.createInsecure(),
+    };
+  }
+
+  if (trimmed.startsWith("http://")) {
+    return {
+      address: trimmed.slice("http://".length),
+      credentials: grpc.credentials.createInsecure(),
+    };
+  }
+
+  return {
+    address: trimmed,
+    credentials: grpc.credentials.createInsecure(),
+  };
 }
 
 function toGrpcRequest(activity: ActivityEnvelope): Record<string, unknown> {
@@ -146,7 +192,8 @@ export class GrpcAgentGatewayTransport implements AgentGatewayClient {
 
   constructor(endpoint: string) {
     const ClientCtor = loadClientCtor();
-    this.client = new ClientCtor(endpoint, grpc.credentials.createInsecure()) as unknown as GrpcAgentGatewayClient;
+    const parsed = parseEndpoint(endpoint);
+    this.client = new ClientCtor(parsed.address, parsed.credentials) as unknown as GrpcAgentGatewayClient;
   }
 
   handleActivity(activity: ActivityEnvelope): Promise<AgentResponse> {
@@ -201,4 +248,4 @@ export class GrpcAgentGatewayTransport implements AgentGatewayClient {
   }
 }
 
-export { toGrpcAuthRequest, toGrpcRequest, fromGrpcResponse };
+export { parseEndpoint, toGrpcAuthRequest, toGrpcRequest, fromGrpcResponse };
