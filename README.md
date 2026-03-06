@@ -53,3 +53,8 @@ Rust-first, production-grade agent platform for Microsoft Teams that automates O
 
 - Rust: `cd apps/agent-core && cargo test`
 - TypeScript: `cd apps/teams-adapter && pnpm install --frozen-lockfile && pnpm test`
+
+## Azure dev deployment
+
+- Deploy the first Azure dev environment: `infra/scripts/deploy-azure-dev.sh`
+- Run the first live unread-summary smoke test: `infra/scripts/smoke-unread-summary.sh`

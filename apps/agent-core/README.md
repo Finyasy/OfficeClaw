@@ -15,3 +15,9 @@ Rust policy and orchestration core for OfficeClaw.
 ```bash
 cargo test
 ```
+
+## Container build
+
+```bash
+docker build -f apps/agent-core/Dockerfile .
+```

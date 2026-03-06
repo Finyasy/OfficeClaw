@@ -33,6 +33,7 @@ Recommended first operations docs:
 
 1. `operations/azure-deployment-single-region-ha.md`
 2. `operations/azure-mvp-deployment-checklist.md`
+3. `operations/azure-dev-smoke-test.md`
 
 ## Diagram index
 

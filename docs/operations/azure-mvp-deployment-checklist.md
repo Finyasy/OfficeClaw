@@ -64,3 +64,4 @@
 - Graph webhook check: validation token echo works.
 - Renewal check: subscription renewal job runs before expiry.
 - Approval gate check: no send/invite without explicit approval callback.
+- Live unread-summary smoke check: deployed adapter `/oauth/callback` plus `/api/messages` succeeds with a real Graph token before Teams UI testing begins.

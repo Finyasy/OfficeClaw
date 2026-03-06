@@ -16,3 +16,9 @@ Thin Teams/Bot edge adapter.
 pnpm install --frozen-lockfile
 pnpm test
 ```
+
+## Container build
+
+```bash
+docker build -f apps/teams-adapter/Dockerfile .
+```

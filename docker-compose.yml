@@ -9,7 +9,9 @@ services:
       - "5432:5432"
 
   agent-core:
-    build: ./apps/agent-core
+    build:
+      context: .
+      dockerfile: apps/agent-core/Dockerfile
     environment:
       DATABASE_URL: postgres://teamsagent:teamsagent@postgres:5432/teamsagent
       GRPC_PORT: 50051
@@ -20,7 +22,9 @@ services:
       - "50051:50051"
 
   teams-adapter:
-    build: ./apps/teams-adapter
+    build:
+      context: .
+      dockerfile: apps/teams-adapter/Dockerfile
     environment:
       PORT: 3978
       AGENT_GRPC_ENDPOINT: agent-core:50051
