@@ -11,8 +11,8 @@ Keep Teams-specific logic out of Rust core by using a thin adapter.
 - Present OAuth sign-in UX (cards and callback handling).
 - Render `AgentResponse` text and adaptive cards.
 - Translate card button callbacks into action envelopes.
-- Send proactive messages when requested by Rust core.
-- Persist Teams conversation references after first user interaction.
+- Send proactive messages when requested by Rust core by calling the Bot Connector REST API with bot credentials.
+- Capture Teams conversation references after first user interaction and forward them to Rust for persistence.
 - Handle Graph webhook ingress and forward normalized notifications to Rust core.
 
 ## Design constraints
@@ -20,13 +20,15 @@ Keep Teams-specific logic out of Rust core by using a thin adapter.
 - No business-policy decisions in TS edge.
 - No direct Graph mail/calendar execution in TS edge except auth UX flows.
 - Keep channel-specific transformation logic isolated.
+- Rust remains the system of record for tokens, approvals, audit events, and conversation references.
 
 ## Adapter-to-core contract
 
-- Calls `SendActivity` for inbound user text and callback actions.
+- Calls `HandleActivity` for inbound user text and callback actions.
 - Calls `OAuthCallback` for authentication completion metadata.
-- Receives proactive notifications via `ProactiveNotify` requests from core.
-- Uses `SendActivity` with `action_type=WebhookNotification` for Graph webhook events.
+- Receives proactive notifications from Rust over the adapter's `/api/proactive` HTTP endpoint.
+- Uses `HandleActivity` with `action=WEBHOOK_NOTIFICATION` for Graph webhook events.
+- Uses Bot Framework client-credentials auth to obtain a Connector token before proactive sends.
 
 ## Reliability behavior
 

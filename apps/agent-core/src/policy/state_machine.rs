@@ -24,7 +24,10 @@ pub struct StateMachineError {
     pub message: &'static str,
 }
 
-pub fn transition(state: ApprovalStatus, event: ApprovalEvent) -> Result<ApprovalStatus, StateMachineError> {
+pub fn transition(
+    state: ApprovalStatus,
+    event: ApprovalEvent,
+) -> Result<ApprovalStatus, StateMachineError> {
     use ApprovalEvent::*;
     use ApprovalStatus::*;
 

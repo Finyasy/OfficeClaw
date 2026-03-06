@@ -10,6 +10,13 @@
 6. Duplicate callback idempotency behavior.
 7. Audit completeness for each side effect.
 
+## Runtime integration gates
+
+- TypeScript adapter test coverage includes a local end-to-end path for adapter -> gRPC -> Rust -> proactive Bot Connector delivery.
+- Rust integration coverage includes Postgres-backed repo tests with mocked Graph and mocked Key Vault endpoints.
+- Token persistence tests must exercise envelope encryption and decryption through the Key Vault client path, not only the plaintext fallback.
+- Approval execution tests must prove that persisted approval payloads are used as the execution source of truth.
+
 ## Release gates (Phase 1)
 
 - Every workflow doc references one source `.mmd` and one rendered `.png`.

@@ -33,22 +33,23 @@
 
 - `BOT_APP_ID`
 - `BOT_APP_PASSWORD` (or managed identity path)
-- `RUST_CORE_GRPC_URL`
+- `BOT_TENANT_ID`
+- `BOT_TOKEN_ENDPOINT` (optional override for non-default auth routing or tests)
+- `BOT_TOKEN_SCOPE`
+- `AGENT_GRPC_ENDPOINT`
 - `APPINSIGHTS_CONNECTION_STRING`
-- `KEY_VAULT_URI`
-- `SERVICEBUS_CONNECTION_MODE`
 
 ## Rust core environment variables
 
-- `GRPC_BIND_ADDR`
-- `POSTGRES_URL`
-- `KEY_VAULT_URI`
-- `GRAPH_TENANT_ID`
-- `GRAPH_CLIENT_ID`
-- `GRAPH_CLIENT_SECRET_REF`
+- `GRPC_PORT`
+- `DATABASE_URL`
+- `KEYVAULT_URI`
+- `KEYVAULT_KEK_NAME`
+- `KEYVAULT_BEARER_TOKEN` (optional if using a static token for local/dev)
+- `TEAMS_ADAPTER_BASE_URL`
+- `GRAPH_BASE_URL` (optional override for local/mock tests)
 - `AZURE_OPENAI_ENDPOINT`
 - `AZURE_OPENAI_DEPLOYMENT`
-- `SERVICEBUS_NAMESPACE`
 - `APPINSIGHTS_CONNECTION_STRING`
 
 ## Bot and webhook endpoints

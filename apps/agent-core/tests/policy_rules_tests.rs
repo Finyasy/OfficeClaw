@@ -1,9 +1,14 @@
 use std::collections::HashSet;
 
-use agent_core::policy::rules::{evaluate, is_business_hours, OperationKind, PolicyDecision, RiskLevel, RuleInput};
+use agent_core::policy::rules::{
+    evaluate, is_business_hours, OperationKind, PolicyDecision, RiskLevel, RuleInput,
+};
 
 fn base_known() -> HashSet<String> {
-    HashSet::from(["james@contoso.com".to_string(), "ops@contoso.com".to_string()])
+    HashSet::from([
+        "james@contoso.com".to_string(),
+        "ops@contoso.com".to_string(),
+    ])
 }
 
 fn base_allowlist() -> HashSet<String> {
@@ -71,7 +76,10 @@ fn sensitive_content_send_is_denied() {
         attendee_known: true,
     });
 
-    assert_eq!(decision, PolicyDecision::Deny("SENSITIVE_CONTENT_REQUIRES_EDIT"));
+    assert_eq!(
+        decision,
+        PolicyDecision::Deny("SENSITIVE_CONTENT_REQUIRES_EDIT")
+    );
 }
 
 #[test]
@@ -135,7 +143,10 @@ fn unknown_attendee_requires_disambiguation() {
         attendee_known: false,
     });
 
-    assert_eq!(decision, PolicyDecision::RequireDisambiguation("ATTENDEE_UNKNOWN"));
+    assert_eq!(
+        decision,
+        PolicyDecision::RequireDisambiguation("ATTENDEE_UNKNOWN")
+    );
 }
 
 #[test]

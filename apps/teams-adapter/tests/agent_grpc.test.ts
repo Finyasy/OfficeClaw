@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { fromGrpcResponse, toGrpcRequest } from "../src/transport/agent_grpc.js";
-import type { ActivityEnvelope } from "../src/types.js";
+import { fromGrpcResponse, toGrpcAuthRequest, toGrpcRequest } from "../src/transport/agent_grpc.js";
+import type { ActivityEnvelope, AuthEnvelope } from "../src/types.js";
 
 function sampleActivity(): ActivityEnvelope {
   return {
@@ -22,6 +22,7 @@ function sampleActivity(): ActivityEnvelope {
     contains_sensitive: false,
     request_hour_local: 11,
     attendee_known: true,
+    attendee_email: "james@contoso.com",
   };
 }
 
@@ -33,9 +34,10 @@ describe("toGrpcRequest", () => {
       text: "summarize unread",
       action: "APPROVE_SEND",
       recipients: ["james@contoso.com"],
-      contains_sensitive: false,
-      request_hour_local: 11,
-      attendee_known: true,
+      containsSensitive: false,
+      requestHourLocal: 11,
+      attendeeKnown: true,
+      attendeeEmail: "james@contoso.com",
     });
   });
 
@@ -48,9 +50,9 @@ describe("toGrpcRequest", () => {
 
     expect(req).toMatchObject({
       conversation: {
-        thread_id: "",
+        threadId: "",
       },
-      action_payload_json: "",
+      actionPayloadJson: "",
     });
   });
 });
@@ -78,5 +80,31 @@ describe("fromGrpcResponse", () => {
     expect(response.text).toBe("");
     expect(response.correlation_id).toBe("");
     expect(response.actions).toEqual([]);
+  });
+});
+
+describe("toGrpcAuthRequest", () => {
+  it("maps adapter auth payload to grpc request", () => {
+    const auth: AuthEnvelope = {
+      actor: {
+        tenant_id: "tenant-1",
+        user_id: "user-1",
+        user_display_name: "Bryan",
+      },
+      provider: "graph",
+      access_token: "access",
+      refresh_token: "refresh",
+      expires_at_utc: "2026-03-06T12:00:00Z",
+      scope: "Mail.Read Calendars.Read",
+    };
+
+    const request = toGrpcAuthRequest(auth);
+
+    expect(request).toMatchObject({
+      provider: "graph",
+      accessToken: "access",
+      refreshToken: "refresh",
+      scope: "Mail.Read Calendars.Read",
+    });
   });
 });

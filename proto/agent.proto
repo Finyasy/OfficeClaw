@@ -32,6 +32,8 @@ message ActivityEnvelope {
   bool contains_sensitive = 8;
   uint32 request_hour_local = 9;
   bool attendee_known = 10;
+  string conversation_ref_json = 11;
+  string attendee_email = 12;
 }
 
 message UiAction {
@@ -46,6 +48,15 @@ message AgentResponse {
   string adaptive_card_json = 2;
   repeated UiAction actions = 3;
   string correlation_id = 4;
+}
+
+message AuthEnvelope {
+  Actor actor = 1;
+  string provider = 2;
+  string access_token = 3;
+  string refresh_token = 4;
+  string expires_at_utc = 5;
+  string scope = 6;
 }
 
 message ProactiveMessage {
@@ -63,5 +74,6 @@ message Ack {
 
 service AgentGateway {
   rpc HandleActivity(ActivityEnvelope) returns (AgentResponse);
+  rpc OAuthCallback(AuthEnvelope) returns (Ack);
   rpc SendProactive(ProactiveMessage) returns (Ack);
 }

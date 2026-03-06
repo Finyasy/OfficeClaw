@@ -50,6 +50,9 @@ jobs:
           cache: pnpm
           cache-dependency-path: apps/teams-adapter/pnpm-lock.yaml
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 

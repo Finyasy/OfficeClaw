@@ -12,6 +12,8 @@
 
 - `pending`: created from side-effect intent.
 - `approved`: explicit user approval callback accepted.
+- `executed`: Graph send or event creation completed successfully.
+- `failed`: policy re-check or Graph execution failed after approval processing began.
 - `cancelled`: user cancelled or policy invalidated.
 - `expired`: timeout reached before approval.
 
@@ -23,9 +25,11 @@ Every policy decision and external side effect writes an immutable event with:
 - action type and target
 - policy result and reason code
 - endpoint called and status
+- approval ID and approval status transitions when applicable
 - request/result summaries
 
 ## Enforcement guarantees
 
 - Side effects are gated by both policy and approval checks.
+- Approval execution rehydrates the stored approval payload instead of trusting callback data alone.
 - Duplicate callbacks are handled idempotently by `request_id` and `approval_id`.

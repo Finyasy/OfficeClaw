@@ -2,6 +2,9 @@ export interface AppConfig {
   port: number;
   botAppId: string;
   botAppPassword: string;
+  botTenantId: string;
+  botTokenEndpoint?: string;
+  botTokenScope: string;
   agentGrpcEndpoint: string;
 }
 
@@ -24,6 +27,9 @@ export function loadConfig(): AppConfig {
     port,
     botAppId: required("BOT_APP_ID"),
     botAppPassword: required("BOT_APP_PASSWORD"),
+    botTenantId: process.env.BOT_TENANT_ID?.trim() || "botframework.com",
+    botTokenEndpoint: process.env.BOT_TOKEN_ENDPOINT?.trim() || undefined,
+    botTokenScope: process.env.BOT_TOKEN_SCOPE?.trim() || "https://api.botframework.com/.default",
     agentGrpcEndpoint: required("AGENT_GRPC_ENDPOINT"),
   };
 }

@@ -26,6 +26,8 @@ export interface ActivityEnvelope {
   contains_sensitive: boolean;
   request_hour_local: number;
   attendee_known: boolean;
+  attendee_email?: string;
+  conversation_ref_json?: string;
 }
 
 export interface AgentResponse {
@@ -35,13 +37,44 @@ export interface AgentResponse {
   correlation_id: string;
 }
 
+export interface AuthEnvelope {
+  actor: {
+    tenant_id: string;
+    user_id: string;
+    user_display_name?: string;
+  };
+  provider: "graph";
+  access_token: string;
+  refresh_token?: string;
+  expires_at_utc?: string;
+  scope?: string;
+}
+
 export interface RawTeamsActivity {
   channelId?: string;
   id?: string;
+  serviceUrl?: string;
   text?: string;
   from?: { aadObjectId?: string; name?: string };
+  recipient?: { id?: string; name?: string };
   conversation?: { id?: string };
   channelData?: { tenant?: { id?: string } };
   value?: Record<string, unknown>;
   attachments?: Array<{ contentType?: string; id?: string; content?: unknown }>;
+}
+
+export interface ProactiveDeliveryRequest {
+  actor: {
+    tenant_id: string;
+    user_id: string;
+  };
+  conversation: {
+    channel: string;
+    conversation_id: string;
+    message_id?: string;
+  };
+  conversation_ref_json: string;
+  text: string;
+  adaptive_card_json?: string;
+  correlation_id: string;
 }

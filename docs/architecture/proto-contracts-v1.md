@@ -2,46 +2,48 @@
 
 ## Contract policy
 
-- Service namespace: `officeclaw.agent.v1`
+- Service namespace: `teamsagent.v1`
 - Backward compatibility: additive fields only.
 - Removed fields: field numbers are reserved and never reused.
 - Breaking changes require `v2` package.
 
 ## gRPC methods
 
-- `SendActivity(ActivityEnvelope) -> AgentResponse`
+- `HandleActivity(ActivityEnvelope) -> AgentResponse`
 - `OAuthCallback(AuthEnvelope) -> Ack`
-- `ProactiveNotify(NotifyEnvelope) -> Ack`
+- `SendProactive(ProactiveMessage) -> Ack`
 
 ## Message contracts
 
 ### ActivityEnvelope
 
-- `request_id`: unique per incoming adapter request.
-- `correlation_id`: end-to-end trace identifier.
-- `channel`: expected `teams` in MVP.
-- `tenant_id`, `user_id`, `conversation_id`, `message_id`.
-- `message_text`: user utterance or action context.
-- `action_type`: optional card callback action, e.g. `SelectSlot`, `ApproveSend`.
-- `email_id`, `draft_id`, `slot_start_utc`, `slot_end_utc` for workflow callbacks.
-- `attachments_json`: structured card/action payload from adapter.
+- `actor`: `tenant_id`, `user_id`, `user_display_name`.
+- `conversation`: `channel`, `conversation_id`, `thread_id`, `message_id`.
+- `text`: user utterance or action context.
+- `action`: optional card callback action, e.g. `SELECT_SLOT`, `APPROVE_SEND`.
+- `action_payload_json`: structured callback payload, including `approval_id` and selected slot data.
+- `recipients`, `attendee_known`, `attendee_email`, `contains_sensitive`, `request_hour_local`.
+- `conversation_ref_json`: Teams conversation reference captured by the adapter and persisted by Rust for proactive delivery.
+- `attachments[]`: structured attachment metadata from the adapter.
 
 ### AgentResponse
 
-- `request_id`, `correlation_id`.
-- `response_text`: primary natural-language reply.
+- `correlation_id`.
+- `text`: primary natural-language reply.
 - `adaptive_card_json`: optional card payload.
 - `actions[]`: available next actions.
-- `requires_approval`: indicates side effects blocked pending approval.
-- `side_effect_intent`: descriptive intent, never direct execution signal.
 
-### ApprovalRequest
+### AuthEnvelope
 
-- `approval_id`, `correlation_id`, `user_id`.
-- `approval_type`: `send_mail` or `calendar_invite`.
-- `risk_level`: low, medium, high.
-- `draft_payload_json`.
-- `expires_at_utc`.
+- `actor`, `provider`, `access_token`.
+- Optional `refresh_token`, `expires_at_utc`, `scope`.
+- Rust stores this bundle in Postgres using envelope encryption.
+
+### ProactiveMessage
+
+- `actor`, `conversation`, `text`.
+- Optional `adaptive_card_json`.
+- `correlation_id`.
 
 ### ApprovalDecision
 
@@ -78,6 +80,6 @@
 
 The fields above are used directly in workflow diagrams:
 
-- `action_type=SelectSlot` for meeting confirmation.
-- `action_type=ApproveSend` and `draft_id` for mail send approval.
-- `email_id` for reply context retrieval.
+- `action=SELECT_SLOT` creates a persisted invite approval.
+- `action=APPROVE_SEND` and `action_payload_json.approval_id` execute persisted mail approvals.
+- `conversation_ref_json` is captured on inbound Teams activities and later used by `SendProactive`.

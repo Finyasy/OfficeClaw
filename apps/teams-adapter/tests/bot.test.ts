@@ -6,14 +6,17 @@ describe("normalizeActivity", () => {
     const envelope = normalizeActivity({
       channelId: "teams",
       id: "msg-1",
+      serviceUrl: "https://smba.trafficmanager.net/teams/",
       text: "reply to this email",
       from: { aadObjectId: "user-1", name: "Bryan" },
+      recipient: { id: "bot-1", name: "OfficeClaw" },
       conversation: { id: "conv-1" },
       channelData: { tenant: { id: "tenant-1" } },
       value: {
         action: "APPROVE_SEND",
         recipients: ["james@contoso.com"],
         requestHourLocal: 11,
+        attendeeEmail: "james@contoso.com",
       },
     });
 
@@ -21,6 +24,9 @@ describe("normalizeActivity", () => {
     expect(envelope.action).toBe("APPROVE_SEND");
     expect(envelope.recipients).toEqual(["james@contoso.com"]);
     expect(envelope.request_hour_local).toBe(11);
+    expect(envelope.attendee_email).toBe("james@contoso.com");
+    expect(envelope.conversation_ref_json).toContain("conv-1");
+    expect(envelope.conversation_ref_json).toContain("OfficeClaw");
   });
 
   it("throws when tenant id is missing", () => {

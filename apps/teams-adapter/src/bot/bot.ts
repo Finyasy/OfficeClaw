@@ -52,6 +52,38 @@ function parseAttendeeKnown(rawValue: unknown): boolean {
   return value;
 }
 
+function parseAttendeeEmail(rawValue: unknown): string | undefined {
+  if (!rawValue || typeof rawValue !== "object") {
+    return undefined;
+  }
+
+  const value = (rawValue as Record<string, unknown>).attendeeEmail;
+  if (typeof value !== "string" || value.length === 0) {
+    return undefined;
+  }
+
+  return value;
+}
+
+function buildConversationRefJson(activity: RawTeamsActivity, tenantId: string, userId: string, conversationId: string): string {
+  return JSON.stringify({
+    serviceUrl: activity.serviceUrl ?? "",
+    channelId: activity.channelId ?? "teams",
+    tenantId,
+    conversation: {
+      id: conversationId,
+    },
+    user: {
+      aadObjectId: userId,
+      name: activity.from?.name ?? "",
+    },
+    bot: {
+      id: activity.recipient?.id ?? "",
+      name: activity.recipient?.name ?? "",
+    },
+  });
+}
+
 export function normalizeActivity(activity: RawTeamsActivity): ActivityEnvelope {
   const tenantId = activity.channelData?.tenant?.id;
   const userId = activity.from?.aadObjectId;
@@ -97,5 +129,7 @@ export function normalizeActivity(activity: RawTeamsActivity): ActivityEnvelope 
     contains_sensitive: containsSensitive,
     request_hour_local: parseHour(activity.value),
     attendee_known: parseAttendeeKnown(activity.value),
+    attendee_email: parseAttendeeEmail(activity.value),
+    conversation_ref_json: buildConversationRefJson(activity, tenantId, userId, conversationId),
   };
 }

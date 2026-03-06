@@ -8,6 +8,8 @@
 - Execute skills for Graph mail/calendar operations.
 - Enforce approval and policy gates.
 - Emit immutable audit records.
+- Persist Graph OAuth tokens using envelope encryption with Azure Key Vault KEK support.
+- Persist Teams conversation references for proactive delivery.
 
 ## Core modules
 
@@ -26,7 +28,7 @@
 4. Run policy pre-check.
 5. Execute read operations and draft generation.
 6. If side effect intent exists, produce `ApprovalRequest` path.
-7. On approval action, re-check policy and execute side effect.
+7. On approval action, load the persisted approval payload, re-check policy, and execute the Graph side effect.
 8. Emit audit event(s) and respond.
 
 ## Non-functional requirements
@@ -36,7 +38,8 @@
 - Deterministic policy reason codes.
 - Correlation ID propagation to logs and metrics.
 
-## Deferred from this phase
+## Production notes
 
-- Concrete crate layout and runtime implementation.
-- Database migrations and repository code.
+- Read-only Graph operations run only after delegated user token lookup succeeds.
+- Approval execution never trusts callback payloads alone; it uses the stored approval record as the source of truth.
+- Proactive delivery is routed through the TypeScript adapter after Rust loads the stored Teams conversation reference.
