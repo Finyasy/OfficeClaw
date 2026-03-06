@@ -17,6 +17,8 @@
 - Token persistence tests must exercise envelope encryption and decryption through the Key Vault client path, not only the plaintext fallback.
 - Approval execution tests must prove that persisted approval payloads are used as the execution source of truth.
 - CI runs the Rust persistence integration test against a Postgres service container on every pull request.
+- CI installs `protoc` before any Rust or adapter job that compiles gRPC code.
+- CI enforces `pnpm` as the only Node package manager by failing if `package-lock.json` exists in the adapter app.
 
 ## Release gates (Phase 1)
 
